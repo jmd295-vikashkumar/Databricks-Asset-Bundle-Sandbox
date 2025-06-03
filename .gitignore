@@ -16,4 +16,8 @@ logs/
 
 # general
 .env
-.archive
+.archivedocs/dbt-docs/index.html
+
+docs/dbt-docs/index.html
+docs/dbt-docs/manifest.json
+docs/dbt-docs/partial_parse.msgpack
