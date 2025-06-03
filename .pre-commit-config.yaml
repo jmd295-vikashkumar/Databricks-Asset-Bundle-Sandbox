@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ["--allow-multiple-documents"]
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+      - id: markdownlint
+        args: ["--disable=MD013"]
+
+  - repo: local
+    hooks:
+      - id: check-commit-msg
+        name: Check Conventional Commit Format
+        entry: cz check --commit-msg-file
+        language: system
+        stages: [commit-msg]
