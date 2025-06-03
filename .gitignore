@@ -1,0 +1,9 @@
+.venv
+# Ignore generated files
+target/
+docs/dbt-docs/
+logs/
+
+# Ignore local/sensitive files
+.env
+.archive/
