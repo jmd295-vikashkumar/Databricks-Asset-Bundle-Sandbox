@@ -25,16 +25,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-    # - name: Get Databricks OAuth Token
-    #   id: auth
-    #   run: |
-    #     token_response=$(curl -s -X POST "https://login.microsoftonline.com/${{ secrets.DATABRICKS_TENANT_ID }}/oauth2/v2.0/token" \
-    #       -H "Content-Type: application/x-www-form-urlencoded" \
-    #       -d "grant_type=client_credentials&client_id=${{ secrets.DATABRICKS_CLIENT_ID }}&client_secret=${{ secrets.DATABRICKS_CLIENT_SECRET }}&scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default")
+      - name: Configure Databricks CLI with Profile
+        run: |
+          mkdir -p ~/.databricks
+          cat <<EOF > ~/.databrickscfg
+          [PROD_FLAGSTONE]
+          host = https://${{ secrets.DATABRICKS_HOST }}
+          token = ${{ secrets.DATABRICKS_PAT }}
+          EOF
 
-    #     echo "::add-mask::$(echo $token_response)"
-    #     echo "token=$(echo $token_response | jq -r .access_token)" >> $GITHUB_OUTPUT
-
+      - name: Deploy Bundle with CLI
+        env:
+          DATABRICKS_CONFIG_PROFILE: PROD_FLAGSTONE
+        run: |
+          databricks bundle validate --target prod
     # - name: Set up Databricks CLI auth
     #   run: |
     #     mkdir -p ~/.databricks
