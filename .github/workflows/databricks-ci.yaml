@@ -2,7 +2,7 @@ name: CI/CD Databricks CLI OAuth M2M
 
 on:
   push:
-    branches: [main]
+    branches: [main-minimal]
 
 jobs:
   deploy:
