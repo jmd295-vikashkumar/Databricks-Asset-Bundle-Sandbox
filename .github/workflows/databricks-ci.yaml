@@ -2,28 +2,28 @@ name: CI/CD Databricks CLI OAuth M2M
 
 on:
   push:
-    branches: [main-minimal]
+    branches: [main-minimal/dab]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v3
 
-    - name: Install Databricks CLI
-      run: |
-        if ! command -v databricks &> /dev/null; then
-          echo "Installing Databricks CLI"
-          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-          echo "$HOME/.databricks/bin" >> $GITHUB_PATH
-        else
-          echo "Databricks CLI already installed"
-        fi
+      - name: Install Databricks CLI
+        run: |
+          if ! command -v databricks &> /dev/null; then
+            echo "Installing Databricks CLI"
+            curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+            echo "$HOME/.databricks/bin" >> $GITHUB_PATH
+          else
+            echo "Databricks CLI already installed"
+          fi
 
-        sudo apt-get update
-        sudo apt-get install -y jq
+          sudo apt-get update
+          sudo apt-get install -y jq
 
     # - name: Get Databricks OAuth Token
     #   id: auth
