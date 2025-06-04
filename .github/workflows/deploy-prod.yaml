@@ -1,0 +1,36 @@
+name: Deploy to UAT
+
+on:
+  pull_request:
+    branches: [minimal-main]
+
+jobs:
+  deploy-uat:
+    environment: uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Databricks CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+          echo "$HOME/.databricks/bin" >> $GITHUB_PATH
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Configure Databricks CLI (UAT)
+        run: |
+          mkdir -p ~/.databricks
+          cat <<EOF > ~/.databrickscfg
+          [UAT]
+          host = https://${{ secrets.DATABRICKS_HOST }}
+          token = ${{ secrets.DATABRICKS_PAT }}
+          EOF
+
+      - name: Deploy Databricks Bundle to UAT
+        env:
+          DATABRICKS_CONFIG_PROFILE: UAT
+        run: |
+          databricks bundle validate --target uat
+          databricks bundle deploy --target uat
