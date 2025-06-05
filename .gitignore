@@ -7,6 +7,7 @@ __pycache__/
 .venv/
 scratch/**
 !scratch/README.md
+terraform
 
 # dbt
 target/

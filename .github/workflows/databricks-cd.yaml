@@ -1,0 +1,51 @@
+name: CI/CD Databricks CLI OAuth M2M
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        echo "$HOME/.databricks/bin" >> $GITHUB_PATH
+
+    - name: Get Databricks OAuth Token
+      id: auth
+      run: |
+        token_response=$(curl -s -X POST "https://login.microsoftonline.com/${{ secrets.DATABRICKS_TENANT_ID }}/oauth2/v2.0/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "grant_type=client_credentials&client_id=${{ secrets.DATABRICKS_CLIENT_ID }}&client_secret=${{ secrets.DATABRICKS_CLIENT_SECRET }}&scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default")
+
+        echo "::add-mask::$(echo $token_response)"
+        echo "token=$(echo $token_response | jq -r .access_token)" >> $GITHUB_OUTPUT
+
+    - name: Set up Databricks CLI auth
+      run: |
+        mkdir -p ~/.databricks
+        cat <<EOF > ~/.databricks/config.yaml
+        host: ${{ secrets.DATABRICKS_WORKSPACE_URL }}
+        credential_type: oauth_m2m
+        client_id: ${{ secrets.DATABRICKS_CLIENT_ID }}
+        client_secret: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+        oauth_token_url: https://login.microsoftonline.com/${{ secrets.DATABRICKS_TENANT_ID }}/oauth2/v2.0/token
+        EOF
+
+    - name: Upload Notebook to Workspace
+      run: |
+        databricks workspace import notebooks/example_notebook.py /Workspace/CI_Test_Notebook \
+          --language PYTHON \
+          --format SOURCE \
+          --overwrite
+
+    - name: Trigger Job
+      run: |
+        databricks jobs run-now --job-id 12345
+

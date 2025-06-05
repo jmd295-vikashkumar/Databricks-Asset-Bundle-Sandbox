@@ -13,8 +13,8 @@ dab-sandbox:
     dev:
       type: databricks
       method: http
-      catalog: dab_sandbox
-      schema: "{{ env_var('DBT_SCHEMA', 'vikash_kumar') }}"
+      catalog: alpha-raw
+      schema: "{{ var('dev_schema') }}"
 
       http_path: /sql/1.0/warehouses/0da815eb32290158
 
